@@ -85,14 +85,31 @@ const galleryMarkup = images
 galleryList.insertAdjacentHTML('beforeend', galleryMarkup);
 
 galleryList.addEventListener('click', event => {
-    event.preventDefault();
-});
+  event.preventDefault();
+  if (event.target.nodeName !== 'IMG') {
+    return;
+  }
+  const largeImageURL = event.target.dataset.source;
+  const altImg = event.target.alt;
+  const instance = basicLightbox.create(
+    `
+    <img src="${largeImageURL}" alt="${altImg}">
+      `,
+    {
+      onShow: () => {
+        window.addEventListener('keydown', onEscKeyPress);
+      },
 
-galleryList.addEventListener('click', event => {
-    event.preventDefault();
-    if (event.target.nodeName !== 'IMG') {
-        return;
+      onClose: () => {
+        window.removeEventListener('keydown', onEscKeyPress);
+      },
     }
-    const largeImageURL = event.target.dataset.source;
-    console.log(largeImageURL);
+  );
+  function onEscKeyPress(event) {
+    if (event.key === 'Escape') {
+      instance.close();
+    }
+  }
+
+  instance.show();
 });
